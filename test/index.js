@@ -54,7 +54,7 @@ describe('react-applications', () => {
       }
     )
   })
-  it.only('gives us mount callbacks', (done) => {
+  it('gives us mount callbacks', (done) => {
     const allMounted = []
     reactApp(
       <div foo="bar"><div bar="baz" /></div>,
@@ -99,16 +99,37 @@ describe('react-applications', () => {
       done()
     }
   })
-  it.skip('reads JSX into an object', () => {
-    assert.deepEqual(
-      reactApp(<div foo="bar" />),
-      {
-        type: 'div',
-        key: null,
-        props: {
-          foo: 'bar'
-        }
+  it('Calls componentDidMount and componentWillMount', done => {
+    let componentDidMountCalled = false
+    let componentWillMountCalled = false
+    class CComp extends React.Component {
+      componentDidMount() {
+        componentDidMountCalled = true
       }
-    )
+      componentWillMount() {
+        componentWillMountCalled = true
+      }
+    }
+    reactApp(<CComp />, { dynamic: true })
+    setImmediate(() => {
+      assert(componentWillMountCalled)
+      assert(componentDidMountCalled)
+      done()
+    })
+  })
+  it.skip('Supports state', () => {
+    class CComp extends React.Component {
+      componentDidMount() {
+        this.setState({ foo: 'bar' })
+      }
+      render() {
+        return this.state.foo
+      }
+    }
+    reactApp(<CComp />, {
+      onChange({ oldState, newState, changed, added, removed }) {
+        console.log('onChange', { oldState, newState, changed, added, removed } , {componentDidMountCalled})
+      }
+    })
   })
 })

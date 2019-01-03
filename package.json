@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
-  "dependencies": {
-    "react": "^16.6.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
@@ -22,10 +20,11 @@
     "esm": "^3.0.84",
     "husky": "^1.3.1",
     "istanbul": "^1.1.0-alpha.1",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "react": "^16.7.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/_mocha --require esm --require @babel/register",
+    "test": "./node_modules/.bin/_mocha --require @babel/register --require esm",
     "lint": "eslint --fix 'lib/**/*.js'"
   },
   "author": "",
