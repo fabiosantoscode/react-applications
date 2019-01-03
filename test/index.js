@@ -54,17 +54,50 @@ describe('react-applications', () => {
       }
     )
   })
-  it.skip('reads JSX into an object', () => {
-    assert.deepEqual(
-      reactApp(<div foo="bar" />),
+  it.only('gives us mount callbacks', (done) => {
+    const allMounted = []
+    reactApp(
+      <div foo="bar"><div bar="baz" /></div>,
       {
-        type: 'div',
-        key: null,
-        props: {
-          foo: 'bar'
+        mountBack (mounted) {
+          allMounted.push(mounted)
+          if (allMounted.length === 2) end()
         }
       }
     )
+    function end() {
+      assert.deepEqual(
+        allMounted,
+        [
+          {
+            type: 'div',
+            key: null,
+            props: {
+              bar: 'baz'
+            },
+            children: []
+          },
+          {
+            type: 'div',
+            key: null,
+            props: {
+              foo: 'bar'
+            },
+            children: [
+              {
+                type: 'div',
+                key: null,
+                props: {
+                  bar: 'baz'
+                },
+                children: []
+              }
+            ]
+          },
+        ]
+      )
+      done()
+    }
   })
   it.skip('reads JSX into an object', () => {
     assert.deepEqual(
