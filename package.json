@@ -4,6 +4,10 @@
   "description": "",
   "main": "lib/index.js",
   "dependencies": {
+    "@babel/register": "^7.0.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react-app": "^7.0.0",
     "react": "^16.6.3"
   },
   "devDependencies": {
@@ -18,7 +22,7 @@
     "istanbul": "^1.1.0-alpha.1"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --require @babel/register",
     "lint": "eslint --fix 'lib/**/*.js'"
   },
   "author": "",
