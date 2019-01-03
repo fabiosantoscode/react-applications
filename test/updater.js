@@ -43,4 +43,29 @@ describe('Updater', () => {
       done()
     })
   })
+  it('processes componentDidUpdate', done => {
+    let didUpdateCalled = false
+    class CComp extends React.Component {
+      constructor(...args) {
+        super(...args)
+        this.state = {}
+      }
+      componentWillMount() {
+        this.setState({ foo: 'bar' })
+      }
+      componentDidUpdate() {
+        didUpdateCalled = true
+      }
+      render() {
+        return <div foo={this.state.foo} />
+      }
+    }
+    const comp = reactApp(<CComp />, { dynamic: true })
+    assert.deepEqual(comp.state, {})
+    setImmediate(() => {
+      assert(didUpdateCalled)
+      assert.deepEqual(comp.state, { foo: 'bar' })
+      done()
+    })
+  })
 })

@@ -1,9 +1,11 @@
 # react-applications
+
 Write applications with only React and this library! Simply use this to create a configuration document/object or watch and react to the components changing over time.
 
 ## Usage (API)
 
-You can use the synchronous API
+You can use the synchronous API by just calling react-applications with some JSX elements.
+
 ```js
 const React = require('react')
 const reactApps = require('react-applications')
@@ -46,8 +48,3 @@ setImmediate(() => {
 })
 ```
 
-## Usage (CLI)
-
-```bash
-$ react-applications '<div foo="bar"><pre>Foo</pre></div>'  # JSON output
-```

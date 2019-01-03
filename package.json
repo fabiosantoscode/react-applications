@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
+  "bin": {
+    "react-applications": "bin/cli.js"
+  },
   "dependencies": {
     "lodash": "^4.17.11"
   },
