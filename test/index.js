@@ -4,6 +4,14 @@ const React = require('react')
 const assert = require('assert')
 const reactApp = require('..')
 
+const noUpdater = node => {
+  node.children = node.children.map(noUpdater)
+  delete node.updater
+  delete node.refs
+  delete node.context
+  return node
+}
+
 describe('react-applications', () => {
   it('reads JSX into an object', () => {
     assert.deepEqual(
@@ -14,6 +22,7 @@ describe('react-applications', () => {
         props: {
           foo: 'bar'
         },
+        state: {},
         children: []
       }
     )
@@ -24,30 +33,31 @@ describe('react-applications', () => {
       render() { return this.props.bar }
     }
     assert.deepEqual(
-      reactApp(
+      noUpdater(reactApp(
         <div>
           <FComp foo="bar" />
           <CComp bar="baz" />
         </div>
-      ),
+      )),
       {
         type: 'div',
         key: null,
         props: {},
+        state: {},
         children: [
           {
             type: FComp,
-            key: null,
             props: {
               foo: 'bar',
             },
+            state: {},
             children: []
           }, {
             type: CComp,
-            key: null,
             props: {
               bar: 'baz'
             },
+            state: {},
             children: []
           }
         ]
@@ -75,6 +85,7 @@ describe('react-applications', () => {
             props: {
               bar: 'baz'
             },
+            state: {},
             children: []
           },
           {
@@ -83,6 +94,7 @@ describe('react-applications', () => {
             props: {
               foo: 'bar'
             },
+            state: {},
             children: [
               {
                 type: 'div',
@@ -90,6 +102,7 @@ describe('react-applications', () => {
                 props: {
                   bar: 'baz'
                 },
+                state: {},
                 children: []
               }
             ]
