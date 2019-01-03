@@ -68,4 +68,62 @@ describe('Updater', () => {
       done()
     })
   })
+  it('Updates subtree on state changes', done => {
+    class CComp extends React.Component {
+      constructor(...args) {
+        super(...args)
+        this.state = {}
+      }
+      componentDidMount() {
+        this.setState({ foo: 'bar' })
+      }
+      render() {
+        return <div>{this.state.foo}</div>
+      }
+    }
+    reactApp(<CComp />, {
+      onChange(oldState, newState) {
+        assert.deepEqual(oldState.children, [{
+          type: 'div',
+          key: null,
+          props: {},
+          children: [],
+          state: {}
+        }])
+        assert.deepEqual(newState.children, [{
+          type: 'div',
+          key: null,
+          props: {},
+          children: ['bar'],
+          state: {}
+        }])
+        done()
+      }
+    })
+  })
+  it('Allows for deep changes', done => {
+    class CComp extends React.Component {
+      constructor(...args) {
+        super(...args)
+        this.state = {}
+      }
+      componentDidMount() {
+        this.setState({ foo: 'bar' })
+      }
+      render() {
+        return <div>{
+          this.state && this.state.foo ? <div>{this.state.foo}</div> : <pre>foo</pre>
+        }</div>
+      }
+    }
+    reactApp(<CComp />, {
+      onChange(oldState, newState) {
+        assert.equal(oldState.children[0].children[0].type, 'pre')
+        assert.equal(newState.children[0].children[0].type, 'div')
+        assert.equal(oldState.children[0].children[0].children[0], 'foo')
+        assert.equal(newState.children[0].children[0].children[0], 'bar')
+        done()
+      }
+    })
+  })
 })

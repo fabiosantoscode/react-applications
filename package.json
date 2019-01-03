@@ -7,6 +7,7 @@
     "react-applications": "bin/cli.js"
   },
   "dependencies": {
+    "json-diff": "^0.5.3",
     "lodash": "^4.17.11"
   },
   "devDependencies": {
