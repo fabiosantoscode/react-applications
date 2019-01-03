@@ -65,7 +65,7 @@ describe('react-applications', () => {
       }
     )
   })
-  it.skip('gives us mount callbacks', (done) => {
+  it('gives us mount callbacks', (done) => {
     const allMounted = []
     reactApp(
       <div foo="bar"><div bar="baz" /></div>,
