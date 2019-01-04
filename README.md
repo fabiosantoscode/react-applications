@@ -25,7 +25,7 @@ MyComp {
 
 ### Dynamic mode
 
-You can also watch for changes in the components. To do this provide an onChange function or set the `dynamic: true` option.
+You can also watch for changes in the components. To do this provide an onChange function. You can also use componentDidUpdate in your components as long as you pass onChange or set the `dynamic: true` option.
 
 ```js
 const ClassComponent extends React.Component {
