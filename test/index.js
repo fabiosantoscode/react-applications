@@ -2,7 +2,7 @@
 
 const React = require('react')
 const assert = require('assert')
-const reactApp = require('..')
+const reactApps = require('..')
 
 const noUpdater = node => {
   if (typeof node === 'string') return node
@@ -16,7 +16,7 @@ const noUpdater = node => {
 describe('react-applications', () => {
   it('reads JSX into an object', () => {
     assert.deepEqual(
-      reactApp(<div foo="bar" />),
+      reactApps(<div foo="bar" />),
       {
         type: 'div',
         key: null,
@@ -34,7 +34,7 @@ describe('react-applications', () => {
       render() { return this.props.bar }
     }
     assert.deepEqual(
-      noUpdater(reactApp(
+      noUpdater(reactApps(
         <div>
           <FComp foo="bar" />
           <CComp bar="baz" />
@@ -67,7 +67,7 @@ describe('react-applications', () => {
   })
   it('gives us mount callbacks', (done) => {
     const allMounted = []
-    reactApp(
+    reactApps(
       <div foo="bar"><div bar="baz" /></div>,
       {
         mountBack (mounted) {
@@ -125,11 +125,65 @@ describe('react-applications', () => {
       }
       render() { }
     }
-    reactApp(<CComp />, { dynamic: true })
+    reactApps(<CComp />, { dynamic: true })
     setImmediate(() => {
       assert(componentWillMountCalled)
       assert(componentDidMountCalled)
       done()
     })
+  })
+  it('Allows for rendering objects instead of jsx', () => {
+    assert.deepEqual(
+      reactApps({ foo: 'bar' }),
+      { foo: 'bar' }
+    )
+  })
+  it('Allows for rendering objects in props', () => {
+    assert.deepEqual(
+      reactApps(<div foo={{bar: 'baz'}} />),
+      {
+        type: 'div',
+        key: null,
+        props: {
+          foo: { bar: 'baz' }
+        },
+        state: {},
+        children: []
+      }
+    )
+  })
+  it('Allows for rendering objects as children', () => {
+    assert.deepEqual(
+      reactApps(<div>{{foo: 'bar'}}</div>),
+      {
+        type: 'div',
+        key: null,
+        props: {},
+        state: {},
+        children: [{
+          foo: 'bar'
+        }]
+      }
+    )
+  })
+  it('Allows for JSX inside objects', () => {
+    assert.deepEqual(
+      reactApps({
+        foo: <div foo={{ bar: 'baz' }}/>
+      }),
+      {
+        foo: {
+          type: 'div',
+          key: null,
+          props: {
+            foo: {
+              bar: 'baz'
+            }
+          },
+          state: {},
+          children: []
+        }
+      }
+    )
   })
 })
