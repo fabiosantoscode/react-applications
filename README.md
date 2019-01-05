@@ -23,6 +23,17 @@ MyComp {
 */
 ```
 
+You can mix objects and JSX at will.
+
+```js
+const React = require('react')
+const reactApps = require('react-applications')
+
+function MyComp() { return { foo: 'bar' } }
+console.log(reactApps(<MyComp />))
+/* { foo: 'bar' } */
+```
+
 ### Dynamic mode
 
 You can also watch for changes in the components. To do this provide an onChange function. You can also use componentDidUpdate in your components as long as you pass onChange or set the `dynamic: true` option.
