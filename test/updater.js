@@ -18,16 +18,16 @@ describe('Updater', () => {
   it('enqueueSetState', done => {
     let didMountCalled = false
     class CComp extends React.Component {
-      constructor(...args) {
+      constructor (...args) {
         super(...args)
         this.state = {}
       }
-      componentDidMount() {
+      componentDidMount () {
         console.log('didMountCalled')
         didMountCalled = true
         this.setState({ foo: 'bar' })
       }
-      render() {
+      render () {
         return <div foo={this.state.foo} />
       }
     }
@@ -45,18 +45,18 @@ describe('Updater', () => {
     let didUpdateCalled = false
     let comp
     class CComp extends React.Component {
-      constructor(...args) {
+      constructor (...args) {
         super(...args)
         this.state = {}
       }
-      componentWillMount() {
+      componentWillMount () {
         this.setState({ foo: 'bar' })
         comp = this
       }
-      componentDidUpdate() {
+      componentDidUpdate () {
         didUpdateCalled = true
       }
-      render() {
+      render () {
         return <div foo={this.state.foo} />
       }
     }
@@ -70,21 +70,21 @@ describe('Updater', () => {
   it('Calls componentDidUpdate on subtree prop changes')
   it('Allows for deep changes', done => {
     class CComp extends React.Component {
-      constructor(...args) {
+      constructor (...args) {
         super(...args)
         this.state = {}
       }
-      componentDidMount() {
+      componentDidMount () {
         this.setState({ foo: 'bar' })
       }
-      render() {
+      render () {
         return <div>{
           this.state && this.state.foo ? <div>{this.state.foo}</div> : <pre>foo</pre>
         }</div>
       }
     }
     reactApps(<CComp />, {
-      onUpdate(oldState, newState) {
+      onUpdate (oldState, newState) {
         assert.equal(oldState.props.children.type, 'pre')
         assert.equal(newState.props.children.type, 'div')
         assert.equal(oldState.props.children.props.children, 'foo')
@@ -95,10 +95,10 @@ describe('Updater', () => {
   })
   it('supports componentDidUpdate', () => {
     class CComp extends React.Component {
-      componentDidMount() {
+      componentDidMount () {
         this.setState({ foo: 'bar' })
       }
-      componentDidUpdate() {
+      componentDidUpdate () {
         assert.equal(this.state.foo, 'bar')
       }
     }
