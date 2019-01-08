@@ -1,16 +1,19 @@
 'use strict'
 
+const assert = require('assert').strict
 const React = require('react')
-const reactApp = require('..')
+const reactApps = require('..')
 const Updater = require('../lib/updater')
-const assert = require('assert')
 
 describe('Updater', () => {
-  it('doesn\'t force update because we can\'t implement the universe. Send a PR!', () => {
-    assert.throws(() => {
-      const up = new Updater(null, {})
-      up.enqueueForceUpdate()
-    }, 'Error: enqueueForceUpdate is disabled')
+  it('supports forceUpdate', done => {
+    let called
+    const up = new Updater({ onUpdate () { called = true } })
+    up.enqueueForceUpdate()
+    setImmediate(() => {
+      assert.equal(called, true)
+      done()
+    })
   })
   it('enqueueSetState', done => {
     let didMountCalled = false
@@ -29,12 +32,11 @@ describe('Updater', () => {
       }
     }
     let onChangeCalled = false
-    const comp = reactApp(<CComp />, {
-      onChange(oldState, newState) {
-        //console.log({oldState, newState})
-        assert.deepEqual(oldState.state, {})
-        assert.deepEqual(newState.state, { foo: 'bar' })
+    reactApps(<CComp />, {
+      onUpdate (oldState, newState) {
         assert(didMountCalled, 'didMountCalled')
+        assert.equal(oldState.props.foo, undefined)
+        assert.equal(newState.props.foo, 'bar')
         done()
       }
     })
@@ -58,44 +60,11 @@ describe('Updater', () => {
         return <div foo={this.state.foo} />
       }
     }
-    reactApp(<CComp />, { dynamic: true })
+    reactApps(<CComp />, { dynamic: true })
     setImmediate(() => {
       assert(didUpdateCalled)
       assert.deepEqual(comp.state, { foo: 'bar' })
       done()
-    })
-  })
-  it.only('Updates subtree on state changes', done => {
-    class CComp extends React.Component {
-      constructor(...args) {
-        super(...args)
-        this.state = {}
-      }
-      componentDidMount() {
-        this.setState({ foo: 'bar' })
-      }
-      render() {
-        return <div>{this.state.foo}</div>
-      }
-    }
-    reactApp(<CComp />, {
-      onChange(oldState, newState) {
-        assert.deepEqual(oldState.children, [{
-          type: 'div',
-          key: null,
-          props: {},
-          children: [],
-          state: {}
-        }])
-        assert.deepEqual(newState.children, [{
-          type: 'div',
-          key: null,
-          props: {},
-          children: ['bar'],
-          state: {}
-        }])
-        done()
-      }
     })
   })
   it('Calls componentDidUpdate on subtree prop changes')
@@ -106,7 +75,6 @@ describe('Updater', () => {
         this.state = {}
       }
       componentDidMount() {
-        console.log('setState')
         this.setState({ foo: 'bar' })
       }
       render() {
@@ -115,16 +83,12 @@ describe('Updater', () => {
         }</div>
       }
     }
-    reactApp(<CComp />, {
-      mountBack(node) {
-        console.log('mountBack', node)
-      },
-      onChange(oldState, newState) {
-        console.log({oldState: oldState, newState: newState})
-        assert.equal(oldState.children[0].type, 'pre')
-        assert.equal(newState.children[0].type, 'div')
-        assert.equal(oldState.children[0].children[0], 'foo')
-        assert.equal(newState.children[0].children[0], 'bar')
+    reactApps(<CComp />, {
+      onUpdate(oldState, newState) {
+        assert.equal(oldState.props.children.type, 'pre')
+        assert.equal(newState.props.children.type, 'div')
+        assert.equal(oldState.props.children.props.children, 'foo')
+        assert.equal(newState.props.children.props.children, 'bar')
         done()
       }
     })

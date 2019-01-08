@@ -4,49 +4,25 @@ const React = require('react')
 const assert = require('assert')
 const reactApps = require('..')
 
-describe('react-applications', () => {
-  it('reads JSX into an object', () => {
-    assert.deepEqual(
-      reactApps(<div foo="bar" />),
-      {
-        type: 'div',
-        key: null,
-        props: {
-          foo: 'bar'
-        },
-        state: {},
-        children: []
-      }
-    )
-  })
-  it('can invoke function and class components', () => {
-    function FComp(props) { return props.foo }
-    class CComp extends React.Component {
-      render() { return this.props.bar }
+function clean(node) {
+  if (node.$$typeof !== Symbol.for('react.element')) {
+    for (const k in node) if (node.hasOwnProperty(k)) {
+      node[k] = clean(node[k])
     }
-    assert.deepEqual(
-      reactApps(
-        <div>
-          <FComp foo="bar" />
-          <CComp bar="baz" />
-        </div>
-      ),
-      {
-        type: 'div',
-        key: null,
-        props: {},
-        state: {},
-        children: ['bar', 'baz']
-      }
-    )
-  })
-  it('Calls componentDidMount and componentWillMount', done => {
-    let componentDidMountCalled = false
+  }
+  node = { ...node, props: node.props ? { ...node.props } : undefined }
+  if (node.props == null) delete node.props
+  if (node.props && node.props.children === undefined) delete node.props.children
+  delete node.ref
+  delete node.$$typeof
+  delete node._owner
+  delete node._store
+  return node
+}
+describe('react-applications', () => {
+  it('Calls componentWillMount', done => {
     let componentWillMountCalled = false
     class CComp extends React.Component {
-      componentDidMount() {
-        componentDidMountCalled = true
-      }
       componentWillMount() {
         componentWillMountCalled = true
       }
@@ -57,7 +33,6 @@ describe('react-applications', () => {
     reactApps(<CComp />, { dynamic: true })
     setImmediate(() => {
       assert(componentWillMountCalled)
-      assert(componentDidMountCalled)
       done()
     })
   })
@@ -69,29 +44,27 @@ describe('react-applications', () => {
   })
   it('Allows for rendering objects in props', () => {
     assert.deepEqual(
-      reactApps(<div foo={{bar: 'baz'}} />),
+      clean(reactApps(<div foo={{bar: 'baz'}} />)),
       {
         type: 'div',
         key: null,
         props: {
           foo: { bar: 'baz' }
         },
-        state: {},
-        children: []
       }
     )
   })
   it('Allows for rendering objects as children', () => {
     assert.deepEqual(
-      reactApps(<div>{{foo: 'bar'}}</div>),
+      clean(reactApps(<div>{{foo: 'bar'}}</div>)),
       {
         type: 'div',
         key: null,
-        props: {},
-        state: {},
-        children: [{
-          foo: 'bar'
-        }]
+        props: {
+          children: {
+            foo: 'bar'
+          }
+        },
       }
     )
   })
@@ -113,10 +86,11 @@ describe('react-applications', () => {
     )
   })
   it('Allows for JSX inside objects', () => {
+    function FComp() { return <div foo={{ bar: 'baz' }}/> }
     assert.deepEqual(
-      reactApps({
-        foo: <div foo={{ bar: 'baz' }}/>
-      }),
+      clean(reactApps({
+        foo: <FComp />
+      })),
       {
         foo: {
           type: 'div',
@@ -126,8 +100,6 @@ describe('react-applications', () => {
               bar: 'baz'
             }
           },
-          state: {},
-          children: []
         }
       }
     )
@@ -160,5 +132,36 @@ describe('react-applications', () => {
       reactApps(<CComp bar="baz" />),
       'baz'
     )
+  })
+  it('Updates subtree on state changes', done => {
+    class CComp extends React.Component {
+      constructor(...args) {
+        super(...args)
+        this.state = {}
+      }
+      componentDidMount() {
+        this.setState({ foo: 'bar' })
+      }
+      render() {
+        return <div>{this.state.foo}</div>
+      }
+    }
+    reactApps(<CComp />, {
+      onUpdate(oldState, newState) {
+        assert.deepEqual(clean(oldState), {
+          type: 'div',
+          key: null,
+          props: {},
+        })
+        assert.deepEqual(clean(newState), {
+          type: 'div',
+          key: null,
+          props: {
+            children: 'bar',
+          },
+        })
+        done()
+      }
+    })
   })
 })

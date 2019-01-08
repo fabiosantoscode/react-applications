@@ -53,9 +53,7 @@ const structure = reactApps(<ClassComponent />, {
     console.log(oldState, newState, diff)  // previous component, current component, and diff between
   }
 })
-structure.state // {}
-setImmediate(() => {
-  structure.state // { foo: 'bar' }
-})
+// And it's all mounted synchronously
+structure.state // { foo: 'bar' }
 ```
 

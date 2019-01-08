@@ -32,12 +32,16 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/_mocha --require @babel/register --require esm",
-    "lint": "eslint --fix 'lib/**/*.js' --plugin eslint-plugin-react"
+    "lint": "eslint --fix 'test/**/*.js' 'lib/**/*.js' --plugin eslint-plugin-react"
   },
   "author": "",
   "license": "ISC",
   "eslintConfig": {
-    "extends": "standard"
+    "extends": "standard",
+    "globals": {
+      "describe": false,
+      "it": false
+    }
   },
   "husky": {
     "hooks": {
