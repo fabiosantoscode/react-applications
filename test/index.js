@@ -4,15 +4,6 @@ const React = require('react')
 const assert = require('assert')
 const reactApps = require('..')
 
-const noUpdater = node => {
-  if (typeof node === 'string') return node
-  node.children = node.children.map(noUpdater)
-  delete node.updater
-  delete node.refs
-  delete node.context
-  return node
-}
-
 describe('react-applications', () => {
   it('reads JSX into an object', () => {
     assert.deepEqual(
@@ -34,84 +25,20 @@ describe('react-applications', () => {
       render() { return this.props.bar }
     }
     assert.deepEqual(
-      noUpdater(reactApps(
+      reactApps(
         <div>
           <FComp foo="bar" />
           <CComp bar="baz" />
         </div>
-      )),
+      ),
       {
         type: 'div',
         key: null,
         props: {},
         state: {},
-        children: [
-          {
-            type: FComp,
-            props: {
-              foo: 'bar',
-            },
-            state: {},
-            children: ['bar']
-          }, {
-            type: CComp,
-            props: {
-              bar: 'baz'
-            },
-            state: {},
-            children: ['baz']
-          }
-        ]
+        children: ['bar', 'baz']
       }
     )
-  })
-  it('gives us mount callbacks', (done) => {
-    const allMounted = []
-    reactApps(
-      <div foo="bar"><div bar="baz" /></div>,
-      {
-        mountBack (mounted) {
-          allMounted.push(mounted)
-          if (allMounted.length === 2) end()
-        }
-      }
-    )
-    function end() {
-      assert.deepEqual(
-        allMounted,
-        [
-          {
-            type: 'div',
-            key: null,
-            props: {
-              bar: 'baz'
-            },
-            state: {},
-            children: []
-          },
-          {
-            type: 'div',
-            key: null,
-            props: {
-              foo: 'bar'
-            },
-            state: {},
-            children: [
-              {
-                type: 'div',
-                key: null,
-                props: {
-                  bar: 'baz'
-                },
-                state: {},
-                children: []
-              }
-            ]
-          },
-        ]
-      )
-      done()
-    }
   })
   it('Calls componentDidMount and componentWillMount', done => {
     let componentDidMountCalled = false
@@ -123,7 +50,9 @@ describe('react-applications', () => {
       componentWillMount() {
         componentWillMountCalled = true
       }
-      render() { }
+      render() {
+        return <div>foo</div>
+      }
     }
     reactApps(<CComp />, { dynamic: true })
     setImmediate(() => {
@@ -166,6 +95,23 @@ describe('react-applications', () => {
       }
     )
   })
+  it.skip('Allows for rendering objects in props and children', () => {
+    function FComp(props) { return <div foo={{bar: 'baz'}}>{props.children}</div>}
+    assert.deepEqual(
+      reactApps(<FComp>{{baz: 'qux'}}</FComp>),
+      {
+        type: 'div',
+        key: null,
+        props: {
+          foo: { bar: 'baz' }
+        },
+        state: {},
+        children: [{
+          baz: 'qux'
+        }]
+      }
+    )
+  })
   it('Allows for JSX inside objects', () => {
     assert.deepEqual(
       reactApps({
@@ -184,6 +130,35 @@ describe('react-applications', () => {
           children: []
         }
       }
+    )
+  })
+  it('Allows for rendering objects instead of jsx', () => {
+    assert.deepEqual(
+      reactApps({ foo: 'bar' }),
+      { foo: 'bar' }
+    )
+  })
+  it('Allows for purely creating objects', () => {
+    function FComp(props) { return props.children }
+    assert.deepEqual(
+      reactApps(<FComp>{{ foo: 'bar' }}</FComp>),
+      {
+        foo: 'bar'
+      }
+    )
+  })
+  it('components are transparent', () => {
+    function FComp(props) { return props.children }
+    class CComp extends React.Component {
+      render() {
+        assert(this.props.bar)
+        return this.props.bar; return <FComp>{this.props.bar}</FComp>
+      }
+    }
+    //console.log(reactApps(<CComp bar="baz" />))
+    assert.deepEqual(
+      reactApps(<CComp bar="baz" />),
+      'baz'
     )
   })
 })
