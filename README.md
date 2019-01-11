@@ -2,6 +2,10 @@
 
 Write applications with only React and this library! Simply use this to create a configuration document/object or watch and react to the components changing over time.
 
+## Demo
+
+Watch the [demo video](https://www.youtube.com/watch?v=FgzJk4k4IhU)!
+
 ## Usage (API)
 
 You can use the synchronous API by just calling react-applications with some JSX elements.
